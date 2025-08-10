@@ -54,6 +54,16 @@
             </div>
             {% endif %}
             
+            <!-- Rating section moved here - between Platform/s and Get it here -->
+            <div class="game-meta-item">
+                <span class="meta-label">Rating</span>
+                <div class="star-rating">
+                    {% for i in "12345" %}
+                        <span class="star {% if game.rating >= i|add:0 %}filled{% endif %}">★</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
             <div class="game-actions">
                 <div class="get-it-section">
                     <span class="meta-label">Get it here</span>
@@ -101,46 +111,55 @@
                         {% endif %}
                     </div>
                 </div>
-                
-                <div class="rating-section">
-                    <span class="meta-label">Rating</span>
-                    <div class="star-rating">
-                        {% for i in "12345" %}
-                            <span class="star {% if game.rating >= i|add:0 %}filled{% endif %}">★</span>
-                        {% endfor %}
-                    </div>
-                </div>
             </div>
         </div>
         
         <div class="game-screenshots">
             <div class="screenshot-grid">
                 <div class="screenshot-main">
-                    <img src="{{ game.cover_image_url }}" alt="{{ game.name }} Poster">
+                    <img src="{{ game.cover_image_url }}" alt="{{ game.name }} Poster" class="clickable-image" onclick="openLightbox('{{ game.cover_image_url }}', '{{ game.name }} Poster')">
                     <div class="image-label">Game Poster</div>
+                    <div class="zoom-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
                 </div>
                 {% for screenshot in gameplay_screenshots %}
                 <div class="screenshot-small">
-                    <img src="{{ screenshot }}" alt="{{ game.name }} Gameplay {{ forloop.counter }}" onerror="this.src='https://via.placeholder.com/300x200/4a90e2/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+{{ forloop.counter }}'">
+                    <img src="{{ screenshot }}" alt="{{ game.name }} Gameplay {{ forloop.counter }}" class="clickable-image" onclick="openLightbox('{{ screenshot }}', '{{ game.name }} Gameplay {{ forloop.counter }}')" onerror="this.src='https://via.placeholder.com/300x200/4a90e2/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+{{ forloop.counter }}'">
                     <div class="image-label">Gameplay</div>
+                    <div class="zoom-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
                 </div>
                 {% empty %}
                 <!-- Fallback jika tidak ada screenshot -->
                 <div class="screenshot-small">
-                    <img src="https://via.placeholder.com/300x200/4a90e2/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+1" alt="{{ game.name }} Gameplay 1">
+                    <img src="https://via.placeholder.com/300x200/4a90e2/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+1" alt="{{ game.name }} Gameplay 1" class="clickable-image" onclick="openLightbox('https://via.placeholder.com/300x200/4a90e2/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+1', '{{ game.name }} Gameplay 1')">
                     <div class="image-label">Gameplay</div>
+                    <div class="zoom-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
                 </div>
                 <div class="screenshot-small">
-                    <img src="https://via.placeholder.com/300x200/7b68ee/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+2" alt="{{ game.name }} Gameplay 2">
+                    <img src="https://via.placeholder.com/300x200/7b68ee/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+2" alt="{{ game.name }} Gameplay 2" class="clickable-image" onclick="openLightbox('https://via.placeholder.com/300x200/7b68ee/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+2', '{{ game.name }} Gameplay 2')">
                     <div class="image-label">Gameplay</div>
+                    <div class="zoom-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
                 </div>
                 <div class="screenshot-small">
-                    <img src="https://via.placeholder.com/300x200/32cd32/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+3" alt="{{ game.name }} Gameplay 3">
+                    <img src="https://via.placeholder.com/300x200/32cd32/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+3" alt="{{ game.name }} Gameplay 3" class="clickable-image" onclick="openLightbox('https://via.placeholder.com/300x200/32cd32/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+3', '{{ game.name }} Gameplay 3')">
                     <div class="image-label">Gameplay</div>
+                    <div class="zoom-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
                 </div>
                 <div class="screenshot-small">
-                    <img src="https://via.placeholder.com/300x200/ff6347/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+4" alt="{{ game.name }} Gameplay 4">
+                    <img src="https://via.placeholder.com/300x200/ff6347/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+4" alt="{{ game.name }} Gameplay 4" class="clickable-image" onclick="openLightbox('https://via.placeholder.com/300x200/ff6347/ffffff?text={{ game.name|truncatechars:10 }}+Gameplay+4', '{{ game.name }} Gameplay 4')">
                     <div class="image-label">Gameplay</div>
+                    <div class="zoom-overlay">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -152,7 +171,7 @@
 {% if hybrid_games %}
 <div class="container similar-games-section">
     <h2>Hybrid Recommendations</h2>
-    <p class="recommendation-subtitle">Rekomendasi berdasarkan gabungan model similarity dan K-Means</p>
+    <p class="recommendation-subtitle">Rekomendasi berdasarkan gabungan model Similarity dan K-Means</p>
     <div class="similar-games-grid">
         {% for recommended_game in hybrid_games %}
         <div class="similar-game-card">
@@ -433,6 +452,116 @@
     font-weight: 500;
 }
 
+/* Lightbox Styles */
+.clickable-image {
+    cursor: pointer;
+    position: relative;
+}
+
+.zoom-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.screenshot-main:hover .zoom-overlay,
+.screenshot-small:hover .zoom-overlay {
+    opacity: 1;
+}
+
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    animation: fadeIn 0.3s ease;
+}
+
+.lightbox-content {
+    position: relative;
+    margin: auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 1200px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-image {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 10000;
+}
+
+.lightbox-close:hover {
+    color: #ff6b6b;
+}
+
+.lightbox-caption {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    text-align: center;
+    background: rgba(0,0,0,0.7);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 1rem;
+    max-width: 80%;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .lightbox-close {
+        font-size: 30px;
+        top: 10px;
+        right: 20px;
+    }
+    
+    .lightbox-caption {
+        font-size: 0.9rem;
+        bottom: 10px;
+        padding: 8px 16px;
+    }
+}
+
 
 .similar-games-section {
     padding: 60px 0;
@@ -585,4 +714,53 @@
     }
 }
 </style>
+
+<!-- Lightbox Modal -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <div class="lightbox-content">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img id="lightbox-image" class="lightbox-image" src="" alt="">
+        <div id="lightbox-caption" class="lightbox-caption"></div>
+    </div>
+</div>
+
+<script>
+function openLightbox(imageSrc, caption) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    
+    lightboxImage.src = imageSrc;
+    lightboxCaption.textContent = caption;
+    lightbox.style.display = 'block';
+    
+    // Prevent body scrolling when lightbox is open
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.style.display = 'none';
+    
+    // Restore body scrolling
+    document.body.style.overflow = 'auto';
+}
+
+// Close lightbox when pressing Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeLightbox();
+    }
+});
+
+// Prevent lightbox from closing when clicking on the image
+document.getElementById('lightbox-image').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+
+document.getElementById('lightbox-caption').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+</script>
+
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "games/base.html" %}
+h{% extends "games/base.html" %}
 
 {% block content %}
 <div class="container">
@@ -8,7 +8,7 @@
     
     <div class="games-grid">
         {% for game in games %}
-        <div class="game-card">
+        <div class="game-card" data-game-id="{{ game.id }}" data-section="{{ category_type|lower }}">
             <a href="{% url 'games:game_detail' game.id %}" class="game-card-link">
                 <div class="game-image">
                     {% if game.cover_image_url %}
@@ -21,7 +21,9 @@
                     <h3>{{ game.name }}</h3>
                     <div class="game-meta">
                         {% if game.rating %}
-                            <span class="rating">★ {{ game.rating|floatformat:1 }}</span>
+                            <span class="rating">Rating: {{ game.rating|floatformat:1 }}/5</span>
+                        {% else %}
+                            <span class="rating">Rating: N/A/5</span>
                         {% endif %}
                         <!-- Release date removed -->
                     </div>
@@ -35,6 +37,91 @@
         {% endfor %}
     </div>
 </div>
+
+<!-- JavaScript untuk mendeteksi dan menghilangkan duplikasi -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to remove duplicate games from display
+    function removeDuplicateGames() {
+        const seenGameIds = new Set();
+        const seenGameNames = new Set(); // Tambahan: track berdasarkan nama game juga
+        const gameCards = document.querySelectorAll('.game-card');
+        let duplicatesFound = 0;
+        
+        gameCards.forEach((card, index) => {
+            const gameId = card.getAttribute('data-game-id');
+            const section = card.getAttribute('data-section') || 'unknown';
+            
+            // Ambil nama game dari elemen h3 di dalam card
+            const gameNameElement = card.querySelector('h3');
+            const gameName = gameNameElement ? gameNameElement.textContent.trim() : '';
+            
+            // Cek duplikasi berdasarkan ID atau nama game
+            const isDuplicateById = gameId && seenGameIds.has(gameId);
+            const isDuplicateByName = gameName && seenGameNames.has(gameName);
+            
+            if (isDuplicateById || isDuplicateByName) {
+                // Duplikat ditemukan - sembunyikan card ini
+                card.style.display = 'none';
+                card.style.visibility = 'hidden';
+                card.setAttribute('data-duplicate', 'true');
+                duplicatesFound++;
+                
+                console.warn(`Duplicate game found and hidden: "${gameName}" (ID: ${gameId}) in section ${section}`);
+            } else {
+                // Tambahkan ke set untuk tracking
+                if (gameId) seenGameIds.add(gameId);
+                if (gameName) seenGameNames.add(gameName);
+                
+                // Pastikan card yang valid tetap terlihat
+                card.style.display = '';
+                card.style.visibility = '';
+            }
+        });
+        
+        if (duplicatesFound > 0) {
+            console.warn(`Total ${duplicatesFound} duplicate games hidden from display`);
+            
+            // Tampilkan peringatan sementara untuk debugging
+            const warningDiv = document.createElement('div');
+            warningDiv.style.cssText = `
+                position: fixed; top: 10px; right: 10px; 
+                background: #28a745; color: white; 
+                padding: 12px 16px; border-radius: 8px; 
+                z-index: 9999; font-size: 14px;
+                max-width: 350px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                font-family: Arial, sans-serif;
+            `;
+            warningDiv.innerHTML = `✅ ${duplicatesFound} game duplikat berhasil disembunyikan`;
+            document.body.appendChild(warningDiv);
+            
+            // Hapus peringatan setelah 4 detik
+            setTimeout(() => {
+                if (warningDiv.parentNode) {
+                    warningDiv.parentNode.removeChild(warningDiv);
+                }
+            }, 4000);
+        } else {
+            console.log('No duplicate games found - display is clean');
+        }
+        
+        // Update grid layout setelah menyembunyikan duplikat
+        const gamesGrid = document.querySelector('.games-grid');
+        if (gamesGrid) {
+            // Force reflow untuk memastikan grid layout ter-update
+            gamesGrid.style.display = 'none';
+            gamesGrid.offsetHeight; // Trigger reflow
+            gamesGrid.style.display = '';
+        }
+    }
+
+    // Jalankan pengecekan duplikat setelah halaman dimuat
+    removeDuplicateGames();
+    
+    // Jalankan lagi setelah delay singkat untuk memastikan semua elemen ter-load
+    setTimeout(removeDuplicateGames, 100);
+});
+</script>
 
 <style>
 .category-header {

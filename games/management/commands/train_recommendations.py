@@ -7,8 +7,9 @@ from django.db import models
 from datetime import timedelta
 import random
 
-from games.models import Game, UserGameRating, UserGameInteraction, UserPreference
+from games.models import Game
 from games.recommendation import HybridRecommendationEngine
+from games.clustering import GameClusteringEngine
 
 class Command(BaseCommand):
     help = 'Train recommendation system and create sample data'
@@ -25,6 +26,17 @@ class Command(BaseCommand):
             default=20,
             help='Number of sample users to create',
         )
+        parser.add_argument(
+            '--train-kmeans',
+            action='store_true',
+            help='Train K-Means clustering model',
+        )
+        parser.add_argument(
+            '--n-clusters',
+            type=int,
+            default=5,
+            help='Number of clusters for K-Means (default: 5)',
+        )
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Starting recommendation system training...'))
@@ -32,12 +44,15 @@ class Command(BaseCommand):
         if options['create_sample_data']:
             self.create_sample_data(options['num_users'])
         
+        if options['train_kmeans']:
+            self.train_kmeans_model(options['n_clusters'])
+        
         self.train_recommendation_system()
         
         self.stdout.write(self.style.SUCCESS('Recommendation system training completed!'))
 
     def create_sample_data(self, num_users):
-        """Create sample users and ratings for testing"""
+        """Create sample users for testing (simplified version)"""
         self.stdout.write('Creating sample data...')
         
         # Get all games
@@ -64,117 +79,99 @@ class Command(BaseCommand):
                 user.set_password('password123')
                 user.save()
                 self.stdout.write(f'Created user: {username}')
-                
-                # Create random ratings for this user
-                num_ratings = random.randint(5, 15)
-                rated_games = random.sample(games, min(num_ratings, len(games)))
-                
-                for game in rated_games:
-                    # Create realistic rating distribution
-                    rating = random.choices(
-                        [1.0, 2.0, 3.0, 4.0, 5.0],
-                        weights=[5, 10, 20, 35, 30]  # More higher ratings
-                    )[0]
-                    
-                    UserGameRating.objects.create(
-                        user=user,
-                        game=game,
-                        rating=rating
-                    )
-                
-                # Create random interactions
-                num_interactions = random.randint(10, 30)
-                interaction_games = random.sample(games, min(num_interactions, len(games)))
-                
-                for game in interaction_games:
-                    interaction_type = random.choice(['view', 'click', 'search', 'like'])
-                    
-                    UserGameInteraction.objects.create(
-                        user=user,
-                        game=game,
-                        interaction_type=interaction_type,
-                        timestamp=timezone.now() - timedelta(days=random.randint(1, 30))
-                    )
         
-        self.stdout.write(self.style.SUCCESS(f'Created {num_users} sample users with ratings and interactions'))
+        self.stdout.write(self.style.SUCCESS(f'Created {num_users} sample users'))
 
     def train_recommendation_system(self):
         """Train the recommendation system"""
         self.stdout.write('Training recommendation system...')
         
-        # Initialize recommendation engine
-        rec_engine = HybridRecommendationEngine()
-        
-        # Update user preferences for all users
-        users_with_ratings = User.objects.filter(usergamerating__isnull=False).distinct()
-        
-        for user in users_with_ratings:
-            try:
-                user_pref = rec_engine.update_user_preferences(user)
-                if user_pref:
-                    self.stdout.write(f'Updated preferences for user: {user.username}')
-            except Exception as e:
-                self.stdout.write(
-                    self.style.WARNING(f'Error updating preferences for {user.username}: {str(e)}')
-                )
-        
-        # Calculate game popularity scores
+        # Calculate game popularity scores based on rating only
         self.calculate_popularity_scores()
         
-        # Pre-calculate some similarities for performance
-        self.precalculate_similarities()
+        # Train cosine similarity model
+        self.train_cosine_similarity()
         
         self.stdout.write(self.style.SUCCESS('Recommendation system training completed'))
 
     def calculate_popularity_scores(self):
-        """Calculate popularity scores for games"""
+        """Calculate popularity scores for games based on rating"""
         self.stdout.write('Calculating game popularity scores...')
         
         games = Game.objects.all()
         
         for game in games:
-            # Calculate popularity based on ratings and interactions
-            rating_count = UserGameRating.objects.filter(game=game).count()
-            avg_rating = UserGameRating.objects.filter(game=game).aggregate(
-                avg_rating=models.Avg('rating')
-            )['avg_rating'] or 0
-            
-            interaction_count = UserGameInteraction.objects.filter(game=game).count()
-            
-            # Simple popularity formula
-            popularity_score = (
-                (avg_rating * 0.4) +
-                (min(rating_count / 10, 5) * 0.3) +  # Normalize rating count
-                (min(interaction_count / 50, 5) * 0.3)  # Normalize interaction count
-            )
+            # Simple popularity formula based on rating only
+            popularity_score = game.rating or 0
             
             game.popularity_score = popularity_score
             game.save(update_fields=['popularity_score'])
         
         self.stdout.write(f'Updated popularity scores for {games.count()} games')
 
-    def precalculate_similarities(self):
-        """Pre-calculate game similarities for better performance"""
-        self.stdout.write('Pre-calculating game similarities...')
+    def train_cosine_similarity(self):
+        """Train cosine similarity model"""
+        self.stdout.write('Training cosine similarity model...')
         
-        from games.recommendation import get_similar_games
-        
-        # Get top 20 most popular games and calculate similarities
-        popular_games = Game.objects.order_by('-popularity_score')[:20]
-        
-        calculated_count = 0
-        for game in popular_games:
-            try:
-                similar_games = get_similar_games(game, num_similar=10)
-                calculated_count += 1
-                if calculated_count % 5 == 0:
-                    self.stdout.write(f'Calculated similarities for {calculated_count} games')
-            except Exception as e:
+        try:
+            from games.cosine_similarity import CosineSimilarityEngine
+            
+            similarity_engine = CosineSimilarityEngine()
+            similarity_matrix = similarity_engine.fit()
+            
+            if similarity_matrix is not None and similarity_matrix.size > 0:
                 self.stdout.write(
-                    self.style.WARNING(f'Error calculating similarities for {game.name}: {str(e)}')
+                    self.style.SUCCESS(
+                        f'Cosine similarity model trained successfully with matrix shape: {similarity_matrix.shape}'
+                    )
                 )
+            else:
+                self.stdout.write(self.style.ERROR('Failed to train cosine similarity model'))
+                
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f'Error training cosine similarity model: {str(e)}')
+            )
+
+    def train_kmeans_model(self, n_clusters=5):
+        """Train K-Means clustering model"""
+        self.stdout.write('Training K-Means clustering model...')
         
-        self.stdout.write(f'Pre-calculated similarities for {calculated_count} games')
+        # Check if we have enough games
+        total_games = Game.objects.count()
+        if total_games < 10:
+            self.stdout.write(
+                self.style.WARNING(
+                    f'Not enough games for clustering. Found: {total_games}, minimum: 10'
+                )
+            )
+            return
+        
+        try:
+            # Initialize clustering engine
+            n_clusters = min(n_clusters, total_games // 2)  # Don't create too many clusters
+            clustering_engine = GameClusteringEngine(n_clusters=n_clusters)
+            
+            # Train the model
+            cluster_labels = clustering_engine.fit()
+            
+            if len(cluster_labels) > 0:
+                unique_clusters = len(set(cluster_labels))
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f'K-Means model trained successfully with {unique_clusters} clusters'
+                    )
+                )
+                
+                if clustering_engine.silhouette_avg:
+                    self.stdout.write(f'Silhouette Score: {clustering_engine.silhouette_avg:.3f}')
+            else:
+                self.stdout.write(self.style.ERROR('Failed to train K-Means model'))
+                
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f'Error training K-Means model: {str(e)}')
+            )
 
     def create_demo_user(self):
         """Create a demo user for testing"""
@@ -190,17 +187,6 @@ class Command(BaseCommand):
         if created:
             demo_user.set_password('demo123')
             demo_user.save()
-            
-            # Add some sample ratings for demo user
-            games = list(Game.objects.all()[:10])
-            for game in games:
-                rating = random.uniform(3.0, 5.0)
-                UserGameRating.objects.create(
-                    user=demo_user,
-                    game=game,
-                    rating=rating
-                )
-            
-            self.stdout.write(self.style.SUCCESS('Created demo user with sample ratings'))
+            self.stdout.write(self.style.SUCCESS('Created demo user'))
         
         return demo_user

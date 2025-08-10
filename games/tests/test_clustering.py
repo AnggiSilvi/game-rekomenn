@@ -45,7 +45,7 @@ class ClusteringTests(TestCase):
         self.assertEqual(len(features), len(games))
         
         # Check if required columns exist
-        self.assertIn('Rating', features.columns)
+        self.assertIn('rating', features.columns)
     
     def test_model_fitting(self):
         """Test model fitting"""

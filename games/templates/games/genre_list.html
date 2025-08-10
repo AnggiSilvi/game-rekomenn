@@ -6,7 +6,7 @@
     
     <div class="genre-grid">
         {% for item in genre_data %}
-        <a href="{% url 'games:games_by_genre' item.genre.name %}" class="genre-card" {% if item.example_games.0.cover_image_url %}style="background-image: url('{{ item.example_games.0.cover_image_url }}');"{% else %}style="background-image: url('https://via.placeholder.com/300x200?text=No+Image');"{% endif %}>
+        <a href="{% url 'games:games_by_genre' item.genre.name %}" class="genre-card" {% if item.representative_game.cover_image_url %}style="background-image: url('{{ item.representative_game.cover_image_url }}');"{% else %}style="background-image: url('https://via.placeholder.com/300x200?text={{ item.genre.name }}');"{% endif %}>
             <div class="genre-overlay">
                 <h2>{{ item.genre.name }}</h2>
             </div>

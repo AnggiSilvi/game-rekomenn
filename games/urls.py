@@ -19,8 +19,6 @@ urlpatterns = [
     # Category pages
     path('genres/', views.genre_list, name='genre_list'),
     path('genre/<str:genre_name>/', views.games_by_genre, name='games_by_genre'),
-    path('publishers/', views.publisher_list, name='publisher_list'),
-    path('publisher/<str:publisher_name>/', views.games_by_publisher, name='games_by_publisher'),
     path('platforms/', views.platform_list, name='platform_list'),
     path('platform/<slug:platform_slug>/', views.games_by_platform, name='games_by_platform'),
     path('esrb/', views.esrb_list, name='esrb_list'),

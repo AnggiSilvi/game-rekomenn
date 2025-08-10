@@ -4,7 +4,7 @@ import csv
 import os
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from games.models import Game, Genre, Platform, Rating
+from games.models import Game, Genre, Platform
 
 class Command(BaseCommand):
     help = 'Updates or creates game data from a CSV file into the database'
@@ -31,10 +31,7 @@ class Command(BaseCommand):
                     game_obj, created = Game.objects.update_or_create(
                         name=game_name.strip(),
                         defaults={
-                            'released': row.get('Released') or None,
                             'rating': float(row.get('Rating')) if row.get('Rating') else 0.0,
-                            'metacritic': int(row.get('Metacritic')) if row.get('Metacritic') else 0,
-                            'description': row.get('Description', ''),
                             'cover_image_url': row.get('ImageURL', '').strip() or None,
                             'esrb': row.get('ESRB', '').strip() or None,
                         }

@@ -1,0 +1,567 @@
+{% extends 'games/base.html' %}
+{% load static %}
+
+{% block title %}Pencarian Lanjutan - Videogames Browser{% endblock %}
+
+{% block content %}
+<div class="container advanced-search-container">
+    <h1>Pencarian Lanjutan</h1>
+    
+    <!-- Advanced Search Form -->
+    <section class="search-form-section">
+        <form class="advanced-search-form" action="{% url 'games:advanced_search' %}" method="get">
+            <div class="search-input-group">
+                <label for="search-query">Nama Game:</label>
+                <input type="search" name="q" id="search-query" placeholder="Masukkan nama game..." value="{{ query|default:'' }}" class="search-input">
+            </div>
+            
+            <div class="filters-container">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="genre-select">Genre:</label>
+                        <select name="genre" id="genre-select" class="filter-select">
+                            <option value="">Semua Genre</option>
+                            {% for genre in all_genres %}
+                                <option value="{{ genre.name }}" {% if genre_filter == genre.name %}selected{% endif %}>
+                                    {{ genre.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="platform-select">Platform:</label>
+                        <select name="platform" id="platform-select" class="filter-select">
+                            <option value="">Semua Platform</option>
+                            {% for platform in all_platforms %}
+                                <option value="{{ platform.name }}" {% if platform_filter == platform.name %}selected{% endif %}>
+                                    {{ platform.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="esrb-select">ESRB Rating:</label>
+                        <select name="esrb" id="esrb-select" class="filter-select">
+                            <option value="">Semua Rating</option>
+                            {% for esrb in all_esrb_ratings %}
+                                <option value="{{ esrb }}" {% if esrb_filter == esrb %}selected{% endif %}>
+                                    {{ esrb }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="filter-row">
+                    <div class="filter-group rating-filter">
+                        <label>Rating Game:</label>
+                        <div class="rating-range-inputs">
+                            <input type="number" name="rating_min" placeholder="Min" min="0" max="5" step="0.1" value="{{ rating_min|default:'' }}" class="rating-input">
+                            <span class="range-separator">sampai</span>
+                            <input type="number" name="rating_max" placeholder="Max" min="0" max="5" step="0.1" value="{{ rating_max|default:'' }}" class="rating-input">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group sort-group">
+                        <label for="sort-select">Urutkan berdasarkan:</label>
+                        <select name="sort_by" id="sort-select" class="filter-select">
+                            <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Rating Tertinggi</option>
+                            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Nama A-Z</option>
+                            <option value="popularity" {% if sort_by == 'popularity' %}selected{% endif %}>Popularitas</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="search-actions">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i> Cari Game
+                </button>
+                <a href="{% url 'games:advanced_search' %}" class="reset-btn">
+                    <i class="fas fa-undo"></i> Reset Filter
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <!-- Active Filters Display -->
+    {% if active_filters %}
+    <section class="active-filters-section">
+        <div class="active-filters">
+            <span class="filters-label">Filter Aktif:</span>
+            {% for key, value in active_filters.items %}
+                <span class="filter-tag">
+                    {% if key == 'query' %}
+                        Pencarian: "{{ value }}"
+                    {% elif key == 'genre' %}
+                        Genre: {{ value }}
+                    {% elif key == 'platform' %}
+                        Platform: {{ value }}
+                    {% elif key == 'esrb' %}
+                        ESRB: {{ value }}
+                    {% elif key == 'rating_min' %}
+                        Rating Min: {{ value }}
+                    {% elif key == 'rating_max' %}
+                        Rating Max: {{ value }}
+                    {% endif %}
+                    <a href="?{% for k, v in request.GET.items %}{% if k != key %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="remove-filter">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </span>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Search Results -->
+    <section class="results-section">
+        {% if search_results %}
+            <div class="results-header">
+                <h2>Hasil Pencarian</h2>
+                <span class="results-count">{{ total_results }} game ditemukan</span>
+            </div>
+            
+            <div class="games-grid">
+                {% for game in search_results %}
+                <div class="game-card">
+                    <a href="{% url 'games:game_detail' game.id %}" class="game-link">
+                        <div class="game-image">
+                            <img src="{{ game.cover_image_url }}" alt="Cover {{ game.name }}">
+                        </div>
+                        <div class="game-info">
+                            <h3 class="game-title">{{ game.name }}</h3>
+                            <div class="game-meta">
+                                <span class="game-rating">
+                                    <i class="fas fa-star"></i> {{ game.rating|floatformat:1|default:"N/A" }}
+                                </span>
+                                {% if game.esrb %}
+                                <span class="game-esrb">{{ game.esrb }}</span>
+                                {% endif %}
+                            </div>
+                            {% if game.genres.all %}
+                            <div class="game-genres">
+                                {% for genre in game.genres.all|slice:":3" %}
+                                    <span class="genre-tag">{{ genre.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if game.platforms.all %}
+                            <div class="game-platforms">
+                                {% for platform in game.platforms.all|slice:":4" %}
+                                    <span class="platform-tag">{{ platform.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        {% elif request.GET %}
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h3>Tidak ada game yang ditemukan</h3>
+                <p>Coba ubah kriteria pencarian Anda atau hapus beberapa filter.</p>
+            </div>
+        {% else %}
+            <div class="search-prompt">
+                <i class="fas fa-gamepad"></i>
+                <h3>Temukan Game Favorit Anda</h3>
+                <p>Gunakan filter di atas untuk mencari game berdasarkan genre, platform, rating, dan kriteria lainnya.</p>
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<style>
+.advanced-search-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.advanced-search-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.search-form-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.search-input-group {
+    margin-bottom: 25px;
+}
+
+.search-input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.filters-container {
+    margin-bottom: 25px;
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+}
+
+.filter-select, .rating-input {
+    padding: 10px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    transition: border-color 0.3s ease;
+}
+
+.filter-select:focus, .rating-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.rating-range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rating-input {
+    flex: 1;
+    min-width: 80px;
+}
+
+.range-separator {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.search-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.search-btn, .reset-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-btn {
+    background: #007bff;
+    color: white;
+}
+
+.search-btn:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+}
+
+.reset-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.reset-btn:hover {
+    background: #545b62;
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: white;
+}
+
+.active-filters-section {
+    margin-bottom: 30px;
+}
+
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: #e3f2fd;
+    border-radius: 10px;
+    border-left: 4px solid #2196f3;
+}
+
+.filters-label {
+    font-weight: 600;
+    color: #1976d2;
+    margin-right: 10px;
+}
+
+.filter-tag {
+    background: #2196f3;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.remove-filter {
+    color: white;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.remove-filter:hover {
+    opacity: 1;
+    color: white;
+}
+
+.results-section {
+    margin-top: 30px;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+}
+
+.results-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.results-count {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.game-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.game-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.game-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.game-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.game-card:hover .game-image img {
+    transform: scale(1.05);
+}
+
+.game-info {
+    padding: 20px;
+}
+
+.game-title {
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.3;
+}
+
+.game-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.game-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #ffc107;
+    font-weight: 600;
+}
+
+.game-esrb {
+    background: #28a745;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.game-genres, .game-platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.genre-tag {
+    background: #007bff;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.platform-tag {
+    background: #6c757d;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.no-results, .search-prompt {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.no-results i, .search-prompt i {
+    font-size: 4em;
+    margin-bottom: 20px;
+    color: #dee2e6;
+}
+
+.no-results h3, .search-prompt h3 {
+    margin: 0 0 10px 0;
+    color: #495057;
+}
+
+.no-results p, .search-prompt p {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+@media (max-width: 768px) {
+    .advanced-search-container {
+        padding: 15px;
+    }
+    
+    .search-form-section {
+        padding: 20px;
+    }
+    
+    .filter-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .rating-range-inputs {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .range-separator {
+        text-align: center;
+        margin: 5px 0;
+    }
+    
+    .search-actions {
+        flex-direction: column;
+    }
+    
+    .search-btn, .reset-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    .active-filters {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filters-label {
+        margin-bottom: 10px;
+    }
+}
+</style>
+{% endblock %}
