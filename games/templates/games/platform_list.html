@@ -1,0 +1,142 @@
+{% extends "games/base.html" %}
+
+{% block content %}
+<style>
+.page-title {
+    text-align: center !important;
+    font-size: 2.5rem !important;
+    margin: 40px 0 !important;
+    color: var(--text-primary) !important;
+}
+
+.platform-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    gap: 30px !important;
+    padding: 20px 0 !important;
+}
+
+.platform-card {
+    position: relative !important;
+    height: 200px !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    text-decoration: none !important;
+    color: white !important;
+    transition: all 0.3s ease !important;
+    display: block !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.platform-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+}
+
+.platform-card:hover .platform-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.8)) !important;
+}
+
+.platform-card:hover .platform-overlay h2 {
+    color: #FFD700 !important;
+}
+
+.platform-background {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 0.3 !important;
+}
+
+.platform-background i {
+    font-size: 8rem !important;
+    color: white !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3) !important;
+}
+
+.platform-overlay {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7)) !important;
+    padding: 20px !important;
+    transition: background-color 0.3s ease !important;
+    z-index: 1 !important;
+}
+
+.platform-overlay h2 {
+    font-size: 1.5rem !important;
+    margin-bottom: 0 !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    text-align: left !important;
+    letter-spacing: 1px !important;
+}
+
+@media (max-width: 768px) {
+    .platform-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .platform-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .platform-card {
+        height: 180px !important;
+    }
+    
+    .platform-overlay h2 {
+        font-size: 1.5rem !important;
+    }
+}
+</style>
+
+<div class="container">
+    <h1 class="page-title">Platforms</h1>
+    <div class="platform-grid">
+        {% for item in platform_data %}
+        <a href="{% url 'games:games_by_platform' item.platform.name|slugify %}" class="platform-card">
+            <div class="platform-background">
+                {% if item.platform.name == 'PC' %}
+                    <i class="fab fa-windows"></i>
+                {% elif item.platform.name == 'PlayStation' or item.platform.name == 'PlayStation 4' or item.platform.name == 'PlayStation 5' %}
+                    <i class="fab fa-playstation"></i>
+                {% elif item.platform.name == 'Xbox' or item.platform.name == 'Xbox One' or item.platform.name == 'Xbox Series S/X' %}
+                    <i class="fab fa-xbox"></i>
+                {% elif item.platform.name == 'Nintendo Switch' or 'Nintendo' in item.platform.name %}
+                    <i class="fas fa-gamepad"></i>
+                {% elif item.platform.name == 'iOS' %}
+                    <i class="fab fa-apple"></i>
+                {% elif item.platform.name == 'Android' %}
+                    <i class="fab fa-android"></i>
+                {% elif item.platform.name == 'Steam' %}
+                    <i class="fab fa-steam"></i>
+                {% elif item.platform.name == 'Linux' %}
+                    <i class="fab fa-linux"></i>
+                {% elif item.platform.name == 'macOS' %}
+                    <i class="fab fa-apple"></i>
+                {% else %}
+                    <i class="fas fa-desktop"></i>
+                {% endif %}
+            </div>
+            <div class="platform-overlay">
+                <h2>{{ item.platform.name }}</h2>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

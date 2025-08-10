@@ -4,7 +4,7 @@ import csv
 import os
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from games.models import Game, Genre, Platform, Publisher, Tag
+from games.models import Game, Genre, Platform, Rating
 
 class Command(BaseCommand):
     help = 'Updates or creates game data from a CSV file into the database'
@@ -44,9 +44,7 @@ class Command(BaseCommand):
                     if created:
                         for model, field, key in [
                             (Genre, game_obj.genres, 'Genres'),
-                            (Platform, game_obj.platforms, 'Platforms'),
-                            (Publisher, game_obj.publishers, 'Publishers'),
-                            (Tag, game_obj.tags, 'Tags')
+                            (Platform, game_obj.platforms, 'Platforms')
                         ]:
                             if row.get(key):
                                 item_names = [name.strip() for name in row[key].split(',') if name.strip()]

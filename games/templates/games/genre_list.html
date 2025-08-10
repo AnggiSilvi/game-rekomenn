@@ -9,14 +9,6 @@
         <a href="{% url 'games:games_by_genre' item.genre.name %}" class="genre-card" {% if item.example_games.0.cover_image_url %}style="background-image: url('{{ item.example_games.0.cover_image_url }}');"{% else %}style="background-image: url('https://via.placeholder.com/300x200?text=No+Image');"{% endif %}>
             <div class="genre-overlay">
                 <h2>{{ item.genre.name }}</h2>
-                <p>Some games:</p>
-                <ul>
-                    {% for game in item.example_games %}
-                        <li>{{ game.name }}</li>
-                    {% empty %}
-                        <li>No games available</li>
-                    {% endfor %}
-                </ul>
             </div>
         </a>
         {% endfor %}
@@ -58,42 +50,34 @@
 }
 
 .genre-card:hover .genre-overlay {
-    background-color: rgba(0, 0, 0, 0.7);
+    background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.8)) !important;
+}
+
+.genre-card:hover .genre-overlay h2 {
+    color: #FFD700 !important;
 }
 
 .genre-overlay {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7)) !important;
     padding: 20px;
     transition: background-color 0.3s ease;
 }
 
 .genre-overlay h2 {
-    font-size: 1.8rem;
-    margin-bottom: 15px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-
-.genre-overlay p {
-    font-size: 1rem;
-    margin-bottom: 10px;
-    opacity: 0.9;
-}
-
-.genre-overlay ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.genre-overlay li {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-bottom: 5px;
+    font-size: 1.5rem !important;
+    margin-bottom: 0 !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    text-align: left !important;
+    letter-spacing: 1px !important;
 }
 
 @media (max-width: 768px) {

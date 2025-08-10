@@ -1,86 +1,68 @@
-# Django
-*.log
-*.pot
-*.pyc
+.venv/
 __pycache__/
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media/
-
-# Environment variables
-.env
-.venv
+*.pyc
+*.pyo
+*.pyd
+.Python
 env/
-venv/
 ENV/
 env.bak/
 venv.bak/
-
-# IDE
-.vscode/
 .idea/
+.vscode/
+*.sqlite3
+*.log
+*.pot
+*.mo
+*.pyc
+*.pyo
+*.pyd
 *.swp
-*.swo
-*~
-
-# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Python
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
+dist/
+build/
+.eggs/
 *.egg
-MANIFEST
-
-# PyInstaller
 *.manifest
 *.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
+*.db
+*.sqlite3
+*.bak
+*.backup
+*.tmp
+*.temp
+*.cache
+*.coverage
 .coverage.*
-.cache
+.cache/
 nosetests.xml
 coverage.xml
 *.cover
+*.py,cover
 .hypothesis/
 .pytest_cache/
+cover/
+htmlcov/
+.tox/
+.nox/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Project specific files to ignore
+# Development utility files
+cari_gambar.py
+df_clustering.csv
+similarity.csv
 
-# Static files (if collected)
-staticfiles/
-static_root/
+# Redundant app files
+rekomendasi-game-app/
+app.py
 
-# Backup files
-*.bak
+# External data directories
+../Sistem Rekomendasi/
+../../Pictures/
+
+# Additional OS files
+Thumbs.db

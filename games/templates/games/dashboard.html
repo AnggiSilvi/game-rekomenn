@@ -70,6 +70,26 @@
         </div>
     </div>
     {% endif %}
+
+    <!-- Favorite Platforms -->
+    {% if favorite_platforms %}
+    <div class="favorite-platforms-section">
+        <h2>Platform Favorit Anda</h2>
+        <div class="platform-list">
+            {% for platform in favorite_platforms %}
+                <div class="platform-item">
+                    {% if platform.game__platforms__icon_class %}
+                    <i class="{{ platform.game__platforms__icon_class }}"></i>
+                    {% else %}
+                    <i class="fas fa-gamepad"></i>
+                    {% endif %}
+                    <a href="{% url 'games:games_by_platform' platform.game__platforms__name|slugify %}" class="platform-name">{{ platform.game__platforms__name|default:"Unknown" }}</a>
+                    <span class="platform-count">{{ platform.count }} interaksi</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
     
     <!-- Recommendation Sections -->
     <div class="recommendations-section">
@@ -79,7 +99,6 @@
         <div class="recommendation-controls">
             <button class="rec-type-btn active" data-type="hybrid">Hybrid</button>
             <button class="rec-type-btn" data-type="content">Content-Based</button>
-            <button class="rec-type-btn" data-type="collaborative">Collaborative</button>
             <button class="rec-type-btn" data-type="popular">Popular</button>
         </div>
         
@@ -93,7 +112,7 @@
                 <div class="rec-game-info">
                     <h4><a href="{% url 'games:game_detail' game.id %}">{{ game.name }}</a></h4>
                     <p class="rec-game-rating">Rating: {{ game.rating|floatformat:1|default:"N/A" }}/5</p>
-                    <p class="rec-game-release">{{ game.released|date:"Y"|default:"TBA" }}</p>
+                    <!-- Release date removed -->
                 </div>
             </div>
             {% endfor %}
@@ -220,7 +239,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const card = document.createElement('div');
         card.className = 'recommendation-card';
         
-        const releaseYear = game.released ? new Date(game.released).getFullYear() : 'TBA';
         const rating = game.rating ? game.rating.toFixed(1) : 'N/A';
         
         card.innerHTML = `
@@ -230,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="rec-game-info">
                 <h4><a href="/game/${game.id}/">${game.name}</a></h4>
                 <p class="rec-game-rating">Rating: ${rating}/5</p>
-                <p class="rec-game-release">${releaseYear}</p>
             </div>
         `;
         

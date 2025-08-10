@@ -9,7 +9,387 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
+    <style>
+        .nav-item.dropdown { position: relative; }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #333;
+            border-radius: 4px;
+            padding: 10px 0;
+            min-width: 200px;
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .nav-item.dropdown.active .dropdown-menu { display: block; } /* Changed from :hover to .active */
+        .dropdown-menu a {
+            color: white;
+            padding: 8px 15px;
+            display: block;
+            text-decoration: none;
+        }
+        .dropdown-menu a:hover { background-color: #555; }
+        
+        /* Authentication Styles */
+        .nav-user {
+            color: #fff;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        
+        .nav-login, .nav-logout {
+            background: linear-gradient(135deg, #667eea, #764ba2) !important;
+            padding: 6px 12px !important;
+            border-radius: 15px !important;
+            transition: all 0.3s ease !important;
+            font-size: 0.85rem !important;
+        }
+        
+        .nav-login:hover, .nav-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .mobile-user {
+            color: #fff;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin: 10px 0;
+            display: block;
+        }
+        
+        /* Header improvements */
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 10px 20px;
+            flex-wrap: nowrap;
+            height: 60px;
+        }
+        
+        .header-left {
+            flex-shrink: 0;
+            min-width: 180px;
+        }
+        
+        .header-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            max-width: 450px;
+            margin: 0 15px;
+        }
+        
+        .search-form {
+            width: 100%;
+            max-width: 380px;
+        }
+        
+        .header-right {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 180px;
+            justify-content: flex-end;
+        }
+        
+        .main-nav {
+            flex-shrink: 0;
+        }
+        
+        .main-nav ul {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: nowrap;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .nav-item {
+            flex-shrink: 0;
+        }
+        
+        .nav-link {
+            padding: 6px 8px !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .nav-link span {
+            display: none;
+        }
+        
+        .nav-link i {
+            font-size: 1rem;
+        }
+        
+        .mobile-nav-toggle {
+            display: none;
+            flex-shrink: 0;
+        }
+        
+        /* Mobile First Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .header-left, .header-right {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .header-left {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .header-center {
+                width: 100%;
+                margin: 0;
+                max-width: none;
+            }
+            
+            .search-form {
+                max-width: none;
+            }
+            
+            .site-logo span {
+                display: none;
+            }
+            
+            .main-nav {
+                display: none;
+            }
+            
+            .mobile-nav-toggle {
+                display: flex !important;
+            }
+            
+            .nav-user span:last-child {
+                display: none;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .header-content {
+                gap: 15px;
+                padding: 0 15px;
+            }
+            
+            .search-form {
+                flex: 1 1 300px;
+                min-width: 250px;
+                max-width: 400px;
+            }
+            
+            .header-right {
+                gap: 10px;
+                flex: 0 1 auto;
+                flex-wrap: wrap;
+            }
+            
+            .nav-link span {
+                display: none;
+            }
+            
+            .main-nav ul {
+                gap: 4px;
+            }
+            
+            .nav-link {
+                padding: 5px 6px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .nav-link i {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (min-width: 1025px) and (max-width: 1199px) {
+            .nav-link span {
+                display: none;
+            }
+            
+            .main-nav ul {
+                gap: 6px;
+            }
+            
+            .nav-link {
+                padding: 6px 8px !important;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .nav-link span {
+                display: inline;
+                margin-left: 4px;
+            }
+            
+            .nav-link {
+                padding: 8px 12px !important;
+            }
+            
+            .main-nav ul {
+                gap: 8px;
+            }
+        }
+        
+        @media (min-width: 1400px) {
+            .header-content {
+                gap: 30px;
+            }
+            
+            .search-form {
+                flex: 1 1 300px;
+                min-width: 250px;
+                max-width: 400px;
+            }
+            
+            .header-right {
+                gap: 20px;
+                flex: 0 1 auto;
+                flex-wrap: wrap;
+            }
+            
+            .main-nav ul {
+                gap: 12px;
+            }
+            
+            .nav-link {
+                padding: 8px 15px !important;
+            }
+        }
+        
+        
+        /* Search Suggestions Styles */
+        .search-input-wrapper {
+            position: relative;
+        }
+        
+        .search-suggestions {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 4px;
+        }
+        
+        .suggestion-section {
+            padding: 8px 0;
+        }
+        
+        .suggestion-section h4 {
+            padding: 8px 16px;
+            margin: 0;
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 600;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .suggestion-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .suggestion-image {
+            width: 32px;
+            height: 32px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        /* Mobile Navigation Improvements */
+        .mobile-nav-menu {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .mobile-nav-menu.active {
+            display: block;
+        }
+        
+        .mobile-link {
+            padding: 15px 20px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .mobile-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Mobile Search Type Selector */
+        @media (max-width: 768px) {
+            .search-type-selector {
+                gap: 6px;
+                margin-bottom: 10px;
+                flex-wrap: wrap;
+            }
+            
+            .search-type-selector label {
+                font-size: 0.75rem;
+                padding: 4px 8px;
+                min-width: 50px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .search-type-selector {
+                gap: 4px;
+                margin-bottom: 8px;
+            }
+            
+            .search-type-selector label {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+                min-width: 45px;
+            }
+        }
+    
+    
 
+</style>
     <header class="site-header">
         <div class="container header-content">
             <div class="header-left">
@@ -18,54 +398,70 @@
                     <span>Videogames Browser</span>
                 </a>
             </div>
-            <form class="search-form" action="{% url 'games:home' %}" method="get">
-                <div class="search-input-wrapper">
-                    <input type="search" name="q" placeholder="Search games..." aria-label="Search games">
-                    <button type="submit" aria-label="Search">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </form>
             
-            <nav class="main-nav">
-                <ul>
-                    <li class="nav-item">
-                        <a href="{% url 'games:genre_list' %}" class="nav-link">
-                            <i class="fas fa-dice-d20"></i>
-                            <span>Genres</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'games:publisher_list' %}" class="nav-link">
-                            <i class="fas fa-building"></i>
-                            <span>Publishers</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'games:esrb_list' %}" class="nav-link">
-                            <i class="fas fa-shield-alt"></i>
-                            <span>ESRB</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'games:rating_list' %}" class="nav-link">
-                            <i class="fas fa-star"></i>
-                            <span>Rating</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            
+            <div class="header-right">
+                <nav class="main-nav">
+                    <ul>
+                        <li class="nav-item">
+                            <a href="{% url 'games:genre_list' %}" class="nav-link">
+                                <i class="fas fa-dice-d20"></i>
+                                <span>Genres</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'games:platform_list' %}" class="nav-link">
+                                <i class="fas fa-laptop"></i>
+                                <span>Platforms</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'games:esrb_list' %}" class="nav-link">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>ESRB</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'games:rating_list' %}" class="nav-link">
+                                <i class="fas fa-star"></i>
+                                <span>Rating</span>
+                            </a>
+                        </li>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <span class="nav-user">
+                                    <i class="fas fa-user"></i>
+                                    <span>{{ user.username }}</span>
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'games:logout' %}" class="nav-link nav-logout">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a href="{% url 'games:login' %}" class="nav-link nav-login">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    <span>Login</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
 
-            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation" aria-expanded="false">
-                <i class="fas fa-bars"></i>
-            </button>
+                <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation" aria-expanded="false">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
         </div>
 
         <nav class="mobile-nav-menu" id="mobileNavMenu">
             <div class="container">
                 <form class="mobile-search-form" action="{% url 'games:home' %}" method="get">
                     <div class="search-input-wrapper">
-                        <input type="search" name="q" placeholder="Search games..." aria-label="Search games">
+                        <input type="search" name="q" placeholder="Cari games dan genre..." aria-label="Search">
                         <button type="submit" aria-label="Search">
                             <i class="fas fa-search"></i>
                         </button>
@@ -96,6 +492,27 @@
                             <span>Rating</span>
                         </a>
                     </li>
+                    {% if user.is_authenticated %}
+                        <li>
+                            <span class="mobile-user">
+                                <i class="fas fa-user"></i>
+                                <span>{{ user.username }}</span>
+                            </span>
+                        </li>
+                        <li>
+                            <a href="{% url 'games:logout' %}" class="mobile-link">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{% url 'games:login' %}" class="mobile-link">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Login</span>
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </nav>
@@ -109,15 +526,15 @@
 
     <footer class="site-footer">
         <div class="container footer-content">
-            <p>© {% now "Y" %} Videogames Browser. Dibuat dengan ❤️ oleh Rianggi Silvianti.</p>
+            <p>© {% now "Y" %} Videogames Browser. Dibuat oleh Anggi.</p>
         </div>
     </footer>
 
     <script>
         const mobileNavToggle = document.getElementById('mobileNavToggle');
         const mobileNavMenu = document.getElementById('mobileNavMenu');
-        const mainNavLinks = document.querySelectorAll('.main-nav .nav-link'); // Untuk menandai link aktif di desktop
-        const mobileNavLinks = document.querySelectorAll('.mobile-nav-menu .mobile-link'); // Untuk menandai link aktif di mobile
+        const mainNavLinks = document.querySelectorAll('.main-nav .nav-link');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-menu .mobile-link');
 
         if (mobileNavToggle && mobileNavMenu) {
             mobileNavToggle.addEventListener('click', () => {
@@ -134,25 +551,6 @@
             });
         }
 
-        // Fungsi untuk menandai link aktif (contoh sederhana berdasarkan URL)
-        // Anda mungkin memerlukan logika yang lebih canggih tergantung struktur URL Anda
-        function setActiveLink(links) {
-            const currentPath = window.location.pathname;
-            links.forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-        }
-        // Panggil fungsi untuk menandai link aktif saat halaman dimuat
-        // setActiveLink(mainNavLinks); 
-        // setActiveLink(mobileNavLinks);
-        // Di-comment karena link navigasi saat ini masih dummy (#)
-
-
-        // Tutup menu mobile jika area di luar menu diklik (opsional)
         document.addEventListener('click', function(event) {
             if (mobileNavMenu && mobileNavMenu.classList.contains('active')) {
                 const isClickInsideMenu = mobileNavMenu.contains(event.target);
@@ -167,6 +565,106 @@
                 }
             }
         });
+
+        // Dropdown Menu Logic
+        const dropdownToggles = document.querySelectorAll('[data-toggle="dropdown"]');
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(event) {
+                event.preventDefault();
+                const dropdown = this.parentElement;
+                
+                // Close other open dropdowns
+                document.querySelectorAll('.nav-item.dropdown.active').forEach(openDropdown => {
+                    if (openDropdown !== dropdown) {
+                        openDropdown.classList.remove('active');
+                    }
+                });
+
+                dropdown.classList.toggle('active');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.nav-item.dropdown')) {
+                document.querySelectorAll('.nav-item.dropdown.active').forEach(openDropdown => {
+                    openDropdown.classList.remove('active');
+                });
+            }
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('search-input');
+        const suggestionsContainer = document.getElementById('search-suggestions');
+        let debounceTimer;
+
+        // Handle search input
+        if (searchInput && suggestionsContainer) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    suggestionsContainer.style.display = 'none';
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    performSearch(query);
+                }, 300);
+            });
+
+            function performSearch(query) {
+                // Search both games and genres by default
+                fetch(`{% url 'games:search_suggestions' %}?q=${encodeURIComponent(query)}&search_type=games`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.suggestions) {
+                            displaySuggestions(data.suggestions);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            function displaySuggestions(suggestions) {
+                suggestionsContainer.innerHTML = '';
+                
+                if (suggestions.games.length === 0) {
+                    suggestionsContainer.style.display = 'none';
+                    return;
+                }
+
+                if (suggestions.games.length > 0) {
+                    const gamesSection = document.createElement('div');
+                    gamesSection.className = 'suggestion-section';
+                    gamesSection.innerHTML = '<h4>Games</h4>';
+                    
+                    suggestions.games.forEach(game => {
+                        const item = document.createElement('div');
+                        item.className = 'suggestion-item';
+                        item.innerHTML = `
+                            <img src="${game.cover_image_url}" alt="${game.name}" class="suggestion-image">
+                            <span>${game.name}</span>
+                        `;
+                        item.addEventListener('click', () => {
+                            window.location.href = `/game/${game.id}/`;
+                        });
+                        gamesSection.appendChild(item);
+                    });
+                    
+                    suggestionsContainer.appendChild(gamesSection);
+                }
+
+                suggestionsContainer.style.display = 'block';
+            }
+
+            // Close suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+        }
     </script>
     {% block extra_js %}
     <!-- JavaScript tambahan per halaman bisa masuk di sini -->

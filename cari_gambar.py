@@ -14,8 +14,8 @@ INPUT_CSV = 'games.csv'
 OUTPUT_CSV = 'games_with_images.csv'
 
 # Header untuk file CSV baru
-# Pastikan header ini sesuai dengan kolom di file games.csv Anda + ImageURL
-new_headers = ['Name', 'Released', 'ESRB', 'Rating', 'Genres', 'Platforms', 'Metacritic', 'Publishers', 'Tags', 'Description', 'ImageURL']
+# Pastikan header ini sesuai dengan kolom di file games_data.csv Anda + ImageURL
+new_headers = ['Name', 'Rating', 'Genres', 'Platforms', 'ESRB', 'Genres_list', 'Platforms_list', 'Cluster', 'ImageURL']
 
 # Header untuk request ke API, ini praktik yang baik
 http_headers = {
