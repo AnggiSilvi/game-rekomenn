@@ -1,3 +1,4 @@
+
 # 🎮 Game Recommender System
 
 Sistem rekomendasi game berbasis web yang dibangun dengan Django, menggunakan machine learning untuk memberikan rekomendasi game yang dipersonalisasi berdasarkan preferensi pengguna.
@@ -62,8 +63,8 @@ Sistem rekomendasi game berbasis web yang dibangun dengan Django, menggunakan ma
 
 1. **Clone repository**
 ```bash
-git clone https://github.com/username/game-recommender-system.git
-cd game-recommender-system
+git clone https://github.com/AnggiSilvi/game-rekomenn.git
+cd game-rekomenn
 ```
 
 2. **Buat virtual environment**
@@ -111,7 +112,7 @@ Buka browser dan kunjungi: `http://localhost:8000`
 ## 📁 Struktur Proyek
 
 ```
-game-recommender-system/
+game-rekomenn/
 ├── config/                 # Django settings
 │   ├── settings.py
 │   ├── urls.py
@@ -301,7 +302,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 **Anggi** - *Full Stack Developer*
 
-- GitHub: [@username](https://github.com/username)
+- GitHub: [@AnggiSilvi](https://github.com/AnggiSilvi)
 - Email: your.email@example.com
 
 ## 🙏 Acknowledgments
@@ -316,12 +317,13 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Jika Anda mengalami masalah atau memiliki pertanyaan:
 
-1. Cek [Issues](https://github.com/username/game-recommender-system/issues) yang sudah ada
+1. Cek [Issues](https://github.com/AnggiSilvi/game-rekomenn/issues) yang sudah ada
 2. Buat issue baru jika diperlukan
 3. Hubungi developer melalui email
 
 ---
 
 ⭐ **Jika proyek ini membantu Anda, jangan lupa berikan star!** ⭐
-#   g a m e - r e k o m e n n  
+#   g a m e - r e k o m e n n 
+ 
  
